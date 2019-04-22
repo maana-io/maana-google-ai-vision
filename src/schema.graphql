@@ -1,0 +1,242 @@
+type VideoFrame {
+  id: ID!
+  timestamp: Int!
+  url: String!
+}
+
+input VideoFrameInput {
+  timestamp: Int!
+  url: String!
+}
+
+type VideoClip {
+  id: ID!
+  url: String!
+}
+
+input VideoClipInput {
+  url: String!
+}
+
+type Position {
+  x: Float
+  y: Float
+  z: Float
+}
+
+type Landmark {
+  type: String
+  position: Position
+}
+
+type Vertex {
+  x: Float
+  y: Float
+}
+
+type NormalizedVertex {
+  x: Float
+  y: Float
+}
+
+type BoundingPoly {
+  vertices: Vertex
+  normalizedVertices: NormalizedVertex
+}
+
+type LatLng {
+  latitude: Float
+  longitude: Float
+}
+
+type LocationInfo {
+  latLng: LatLng
+}
+
+type Property {
+  name: String
+  value: String
+  uint64Value: String
+}
+
+type FaceAnnotation {
+  boundingPoly: BoundingPoly
+  fdBoundingPoly: BoundingPoly
+  landmarks: [Landmark]
+  rollAngle: Float
+  panAngle: Float
+  tiltAngle: Float
+  detectionConfidence: Float
+  landmarkingConfidence: Float
+  joyLikelihood: String
+  sorrowLikelihood: String
+  angerLikelihood: String
+  surpriseLikelihood: String
+  underExposedLikelihood: String
+  blurredLikelihood: String
+  headwearLikelihood: String
+}
+
+type EntityAnnotation {
+  mid: String
+  locale: String
+  description: String
+  score: Float
+  topicality: Float
+  boundingPoly: BoundingPoly
+  locations: [LocationInfo]
+  properties: [Property]
+}
+
+type DetectedLanguage {
+  languageCode: String
+  confidence: Float
+}
+
+type DetectedBreak {
+  type: String
+  isPrefix: Boolean
+}
+
+type TextProperty {
+  detectedLanguages: [DetectedLanguage]
+  detectedBreak: DetectedBreak
+}
+
+type Symbol {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  text: String
+  confidence: Float
+}
+
+type Word {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  word: [Symbol]
+  confidence: Float
+}
+
+type Paragraph {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  word: [Word]
+  confidence: Float
+}
+
+type Block {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  paragraphs: [Paragraph]
+  blockType: String
+  confidence: Float
+}
+
+type Page {
+  property: TextProperty
+  width: Float
+  height: Float
+  blocks: [Block]
+  confidence: Float
+}
+type TextAnnotation {
+  pages: [Page]
+  text: String
+}
+
+type WebEntity {
+  entityId: String
+  score: Float
+  description: String
+}
+
+type WebImage {
+  url: String
+  score: Float
+}
+
+type WebPage {
+  url: String
+  score: Float
+  pageTitle: String
+  fullMatchingImages: [WebImage]
+  partialMatchingImages: [WebImage]
+}
+
+type WebLabel {
+  label: String
+  languageCode: String
+}
+
+type WebDetection {
+  webEntities: [WebEntity]
+  fullMatchingImages: [WebImage]
+  partialMatchingImages: [WebImage]
+  pagesWithMatchingImages: [WebPage]
+  visuallySimilarImages: [WebImage]
+  bestGuessLabels: [WebLabel]
+}
+
+type KeyValue {
+  key: String
+  value: String
+}
+
+type Product {
+  name: String
+  displayName: String
+  description: String
+  productCategory: String
+  productLabels: [KeyValue]
+}
+
+type Result {
+  product: Product
+  score: Float
+  image: String
+}
+
+type GroupedResult {
+  boundingPoly: BoundingPoly
+  results: [Result]
+}
+
+type ProductSearchResults {
+  indexTime: String
+  results: [Result]
+  productGroupedResults: [GroupedResult]
+}
+
+type ImageAnnotationContext {
+  uri: String
+  pageNumber: Int
+}
+
+type Status {
+  code: Int
+  message: String
+}
+
+type ImageDetectionLabel {
+  # id: ID!
+  faceAnnotations: [FaceAnnotation]
+  landmarkAnnotations: [EntityAnnotation]
+  logoAnnotations: [EntityAnnotation]
+  labelAnnotations: [EntityAnnotation]
+  # textAnnotations: [EntityAnnotation]
+  # fullTextAnnotation: TextAnnotation
+  webDetection: WebDetection
+  productSearchResults: ProductSearchResults
+  error: Status
+  context: ImageAnnotationContext
+}
+
+type LabeledVideoFrame {
+  id: ID!
+  videoFrame: VideoFrame!
+  imageDetectionLabel: [ImageDetectionLabel]
+}
+
+type Query {
+  getLabelsFromImage(videoFrame: VideoFrameInput!): LabeledVideoFrame!
+}
