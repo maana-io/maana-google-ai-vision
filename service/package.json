@@ -1,14 +1,14 @@
 {
-  "name": "maana-service",
+  "name": "maana-google-ai-vision",
   "author": "Maana, Inc.",
   "license": "MIT",
   "version": "1.0.0",
   "description": "Maana Q Knowledge Service",
   "main": "src/start.js",
-  "repository": "git@github.com:maana-io/q-svc-templates.git",
+  "repository": "git@github.com:maana-io/maana-google-ai-vision.git",
   "scripts": {
-    "docker-build": "docker build -t maana-service .",
-    "docker-run": "docker run -p 8050:8050 maana-service",
+    "docker-build": "docker build -t maana-google-ai-vision .",
+    "docker-run": "docker run -p 8050:8050 maana-google-ai-vision",
     "precommit": "lint-staged",
     "prettier": "./node_modules/.bin/prettier --write \"src/**/*.{js,jsx}\"",
     "start": "babel-node ./src/start.js",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.4.4",
-    "@google-cloud/translate": "^3.0.1",
+    "@google-cloud/vision": "^0.25.0",
     "amqplib": "^0.5.3",
     "apollo-cache-inmemory": "^1.5.1",
     "apollo-client": "^2.5.1",

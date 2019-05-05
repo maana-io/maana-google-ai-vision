@@ -2,4 +2,5 @@ package-lock.json
 dist
 node_modules
 .env
-Maana*.json
+google-api-key.json
+charts

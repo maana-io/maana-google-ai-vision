@@ -1,77 +1,48 @@
 require('dotenv').config()
 
-const { Translate } = require('@google-cloud/translate')
-const translator = new Translate({
+const { ImageAnnotatorClient } = require('@google-cloud/vision')
+const imageAnnotator = new ImageAnnotatorClient({
   projectId: 'maana-df-test'
 })
 
-const translate = async (texts, sourceLang, targetLang) => {
-  try {
-    const res = await translator.translate(texts, {
-      from: sourceLang,
-      to: targetLang
-    })
-    return res
-  } catch (e) {
-    console.log('Exception: ', e)
-    throw e
-  }
-}
+const DETECTED_FEATURES = [
+  'FACE_DETECTION',
+  'LANDMARK_DETECTION',
+  'LOGO_DETECTION',
+  'LABEL_DETECTION',
+  'IMAGE_PROPERTIES',
+  'WEB_DETECTION',
+  'PRODUCT_SEARCH'
+]
 
 export const resolver = {
   Query: {
-    info: async () => {
-      return {
-        id: 'maana-google-ai-translate',
-        name: 'maana-google-ai-translate',
-        description:
-          'Maana Q Knowledge Service wrapper for Google Cloud Translation'
+    // info: async () => {
+    //   return {
+    //     id: 'maana-google-ai-vision',
+    //     name: 'maana-google-ai-vision',
+    //     description: 'Maana Q Knowledge Service wrapper for Google Cloud vision'
+    //   }
+    // },
+    annotateImage: async (_, { image }) => {
+      try {
+        const res = await imageAnnotator.annotateImage({
+          image: {
+            source: { imageUri: image.id }
+          },
+          features: DETECTED_FEATURES.map(type => ({
+            type,
+            maxResults: 50
+          }))
+        })
+        console.log('Res', JSON.stringify(res, null, 2))
+        return {
+          id: image.id,
+          imageDetectionLabel: res
+        }
+      } catch (e) {
+        throw e
       }
-    },
-    translateOne: async (_, { text, targetLanguageTag }) => {
-      const res = await translate(text, undefined, targetLanguageTag.id)
-      return {
-        id: 0,
-        text: res[0],
-        languageTag: targetLanguageTag
-      }
-    },
-    translateOneLocalized: async (_, { localizedText, targetLanguageTag }) => {
-      const res = await translate(
-        localizedText.text,
-        localizedText.languageTag.id,
-        targetLanguageTag.id
-      )
-      return {
-        id: 0,
-        text: res[0],
-        languageTag: targetLanguageTag
-      }
-    },
-
-    translateMultiple: async (_, { texts, targetLanguageTag }) => {
-      const res = await translate(texts, undefined, targetLanguageTag.id)
-      return res[0].map((x, i) => ({
-        id: i.toString(),
-        text: x,
-        languageTag: targetLanguageTag
-      }))
-    },
-    translateMultipleLocalized: async (
-      _,
-      { localizedTexts, targetLanguageTag }
-    ) => {
-      // NOTE: this assumes the collection of localizedTexts to translate are all the same language tag!
-      const res = await translate(
-        localizedTexts.map(x => x.text),
-        localizedTexts[0].languageTag.id,
-        targetLanguageTag.id
-      )
-      return res[0].map((x, i) => ({
-        id: i.toString(),
-        text: x,
-        languageTag: targetLanguageTag
-      }))
     }
   }
 }

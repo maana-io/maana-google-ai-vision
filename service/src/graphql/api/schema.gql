@@ -1,241 +1,245 @@
-enum AggregateOp {
-  MIN
-  MAX
-  SUM
-  COUNT
+type VideoFrame {
+  id: ID!
+  timestamp: Int!
+  url: String!
 }
 
-type Country {
+input VideoFrameInput {
+  timestamp: Int!
+  url: String!
+}
+
+type VideoClip {
   id: ID!
+  url: String!
+}
+
+input VideoClipInput {
+  url: String!
+}
+
+type Position {
+  x: Float
+  y: Float
+  z: Float
+}
+
+type Landmark {
+  type: String
+  position: Position
+}
+
+type Vertex {
+  x: Float
+  y: Float
+}
+
+type NormalizedVertex {
+  x: Float
+  y: Float
+}
+
+type BoundingPoly {
+  vertices: Vertex
+  normalizedVertices: NormalizedVertex
+}
+
+type LatLng {
+  latitude: Float
+  longitude: Float
+}
+
+type LocationInfo {
+  latLng: LatLng
+}
+
+type Property {
   name: String
-  localizedName: LocalizedText
+  value: String
+  uint64Value: String
 }
 
-input CountryAsInput {
-  id: ID!
-  name: String
-  localizedName: LocalizedTextAsInput
+type FaceAnnotation {
+  boundingPoly: BoundingPoly
+  fdBoundingPoly: BoundingPoly
+  landmarks: [Landmark]
+  rollAngle: Float
+  panAngle: Float
+  tiltAngle: Float
+  detectionConfidence: Float
+  landmarkingConfidence: Float
+  joyLikelihood: String
+  sorrowLikelihood: String
+  angerLikelihood: String
+  surpriseLikelihood: String
+  underExposedLikelihood: String
+  blurredLikelihood: String
+  headwearLikelihood: String
 }
 
-scalar Date
-
-scalar DateTime
-
-input FieldFilterInput {
-  """
-  one of the following is required
-  """
-  fieldId: ID
-  fieldName: String
-  op: String!
-  value: FieldValueInput!
+type EntityAnnotation {
+  mid: String
+  locale: String
+  description: String
+  score: Float
+  topicality: Float
+  boundingPoly: BoundingPoly
+  locations: [LocationInfo]
+  properties: [Property]
 }
 
-input FieldProjectionInput {
-  """
-  one of the following is required - except in the case of count queries
-  """
-  fieldId: ID
-  fieldName: String
-
-  """
-  optional if omitted outer query is used
-  """
-  alias: String
-  op: AggregateOp
+type DetectedLanguage {
+  languageCode: String
+  confidence: Float
 }
 
-type FieldValue {
-  """
-  Types
-  """
-  ID: ID
-  STRING: String
-  INT: Int
-  FLOAT: Float
-  BOOLEAN: Boolean
-  DATE: Date
-  TIME: Time
-  DATETIME: DateTime
-  JSON: JSON
-  KIND: ID
-
-  """
-  List forms
-  """
-  l_ID: [ID]
-  l_STRING: [String]
-  l_INT: [Int]
-  l_FLOAT: [Float]
-  l_BOOLEAN: [Boolean]
-  l_DATE: [Date]
-  l_TIME: [Time]
-  l_DATETIME: [DateTime]
-  l_JSON: [JSON]
-  l_KIND: [ID]
+type DetectedBreak {
+  type: String
+  isPrefix: Boolean
 }
 
-input FieldValueInput {
-  """
-  Types
-  """
-  ID: ID
-  STRING: String
-  INT: Int
-  FLOAT: Float
-  BOOLEAN: Boolean
-  DATE: Date
-  TIME: Time
-  DATETIME: DateTime
-  JSON: JSON
-  KIND: ID
-
-  """
-  List forms
-  """
-  l_ID: [ID]
-  l_STRING: [String]
-  l_INT: [Int]
-  l_FLOAT: [Float]
-  l_BOOLEAN: [Boolean]
-  l_DATE: [Date]
-  l_TIME: [Time]
-  l_DATETIME: [DateTime]
-  l_JSON: [JSON]
-  l_KIND: [ID]
+type TextProperty {
+  detectedLanguages: [DetectedLanguage]
+  detectedBreak: DetectedBreak
 }
 
-type Info {
-  id: ID!
-  name: String!
+type Symbol {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  text: String
+  confidence: Float
+}
+
+type Word {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  word: [Symbol]
+  confidence: Float
+}
+
+type Paragraph {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  word: [Word]
+  confidence: Float
+}
+
+type Block {
+  property: TextProperty
+  boundingBox: BoundingPoly
+  paragraphs: [Paragraph]
+  blockType: String
+  confidence: Float
+}
+
+type Page {
+  property: TextProperty
+  width: Float
+  height: Float
+  blocks: [Block]
+  confidence: Float
+}
+type TextAnnotation {
+  pages: [Page]
+  text: String
+}
+
+type WebEntity {
+  entityId: String
+  score: Float
   description: String
 }
 
-type InstanceSet {
-  kindId: ID!
-
-  """
-  Continuation token
-  """
-  token: String
-  fieldIds: [ID]
-
-  """
-  rowKeys: [Int]
-  """
-  records: [[FieldValue]]
+type WebImage {
+  url: String
+  score: Float
 }
 
-scalar JSON
-
-input KindQueryInput {
-  """
-  projected kind (one of the following is required)
-  """
-  kindId: ID
-  kindName: String
-  serviceId: ID
-
-  """
-  optional alias for projection binding
-  """
-  alias: String
-
-  """
-  projected fields
-  """
-  projection: [FieldProjectionInput]
-
-  """
-  distinct Projected result
-  """
-  distinct: Boolean
-
-  """
-  filters (where)
-  """
-  fieldFilters: [FieldFilterInput]
-
-  """
-  conjunction (where)
-  """
-  and: [KindQueryInput]
-
-  """
-  disjunction (where)
-  """
-  or: [KindQueryInput]
-
-  """
-  join (if conjunction or disjunction)
-  """
-  fromFieldId: ID
-  fromFieldName: String
-  toFieldId: ID
-  toFieldName: String
-  take: Int
-  token: String
+type WebPage {
+  url: String
+  score: Float
+  pageTitle: String
+  fullMatchingImages: [WebImage]
+  partialMatchingImages: [WebImage]
 }
 
-type Language {
-  id: ID!
-  localizedName: LocalizedText
+type WebLabel {
+  label: String
+  languageCode: String
+}
+
+type WebDetection {
+  webEntities: [WebEntity]
+  fullMatchingImages: [WebImage]
+  partialMatchingImages: [WebImage]
+  pagesWithMatchingImages: [WebPage]
+  visuallySimilarImages: [WebImage]
+  bestGuessLabels: [WebLabel]
+}
+
+type KeyValue {
+  key: String
+  value: String
+}
+
+type Product {
   name: String
+  displayName: String
+  description: String
+  productCategory: String
+  productLabels: [KeyValue]
 }
 
-input LanguageAsInput {
-  id: ID!
-  localizedName: LocalizedTextAsInput
-  name: String
+type Result {
+  product: Product
+  score: Float
+  image: String
 }
 
-input LanguageTagAsInput {
-  id: ID!
-  languageCode: LanguageAsInput
-  country: CountryAsInput
+type GroupedResult {
+  boundingPoly: BoundingPoly
+  results: [Result]
 }
 
-type LanguageTagOutput {
-  id: ID!
-  languageCode: Language
-  country: Country
+type ProductSearchResults {
+  indexTime: String
+  results: [Result]
+  productGroupedResults: [GroupedResult]
 }
 
-type LocalizedText {
-  id: ID!
-  languageTag: LanguageTagOutput
-  text: String!
+type ImageAnnotationContext {
+  uri: String
+  pageNumber: Int
 }
 
-input LocalizedTextAsInput {
+type Status {
+  code: Int
+  message: String
+}
+
+type ImageDetectionLabel {
+  # id: ID!
+  faceAnnotations: [FaceAnnotation]
+  landmarkAnnotations: [EntityAnnotation]
+  logoAnnotations: [EntityAnnotation]
+  labelAnnotations: [EntityAnnotation]
+  # textAnnotations: [EntityAnnotation]
+  # fullTextAnnotation: TextAnnotation
+  webDetection: WebDetection
+  productSearchResults: ProductSearchResults
+  error: Status
+  context: ImageAnnotationContext
+}
+
+type AnnotatedImage {
   id: ID!
-  languageTag: LanguageTagAsInput
-  text: String!
+  imageDetectionLabel: [ImageDetectionLabel]
+}
+
+input ImageInput {
+  id: ID!
 }
 
 type Query {
-  translateMultiple(
-    texts: [String!]!
-    targetLanguageTag: LanguageTagAsInput!
-  ): [LocalizedText!]!
-  translateMultipleLocalized(
-    localizedTexts: [LocalizedTextAsInput!]!
-    targetLanguageTag: LanguageTagAsInput!
-  ): [LocalizedText!]!
-  translateOneLocalized(
-    localizedText: LocalizedTextAsInput!
-    targetLanguageTag: LanguageTagAsInput!
-  ): LocalizedText!
-  translateOne(
-    text: String!
-    targetLanguageTag: LanguageTagAsInput!
-  ): LocalizedText!
-  CKGErrors: [String]
-
-  """
-  Mandatory service manifest.
-  """
-  info: Info!
+  annotateImage(image: ImageInput!): AnnotatedImage!
 }
-
-scalar Time
