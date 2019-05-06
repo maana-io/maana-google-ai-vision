@@ -2,6 +2,9 @@ FROM node:alpine
 
 WORKDIR /app
 
+# ensure early on that API key is present
+COPY ./google-api-key.json /app
+
 COPY package.json /app
 
 RUN npm install

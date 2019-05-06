@@ -1,0 +1,52 @@
+query analyze {
+  analyzeImage(
+    image: {
+      id: 0
+      file: {
+        id: "https://storage.googleapis.com/maana-gc-storage/f7b5d390b63a6a5d3d98badc47d37c5754f4fb89001.png"
+      }
+    }
+  ) {
+    id
+    labelAnnotations {
+      id
+      description
+      score
+    }
+    localizedObjectAnnotations {
+      id
+      name
+      score
+      boundingPoly {
+        normalizedVertices {
+          id
+          x
+          y
+        }
+      }
+    }
+    webDetection {
+      webEntities {
+        id
+        description
+        score
+      }
+      bestGuessLabels {
+        id
+        languageCode {
+          id
+        }
+      }
+    }
+  }
+}
+# query analyzeJson {
+#   analyzeImageJson(
+#     image: {
+#       id: 0
+#       file: {
+#         id: "https://storage.googleapis.com/maana-gc-storage/f7b5d390b63a6a5d3d98badc47d37c5754f4fb89001.png"
+#       }
+#     }
+#   )
+# }
