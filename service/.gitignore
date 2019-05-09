@@ -1,6 +1,6 @@
 package-lock.json
 dist
 node_modules
-.env
+!.env
 google-api-key.json
 charts
