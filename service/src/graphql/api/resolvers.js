@@ -22,7 +22,7 @@ const annotateImage = async ({ image }) => {
   try {
     const res = await imageAnnotator.annotateImage({
       image: {
-        source: { imageUri: image.file ? image.file.id : image.id }
+        source: { imageUri: image.id }
       },
       features: DETECTED_FEATURES.map(type => ({
         type,
