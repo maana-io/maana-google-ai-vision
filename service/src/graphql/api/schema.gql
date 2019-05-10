@@ -343,7 +343,7 @@ type ImageAnalysisResultsOutput {
 
 input ImageAsInput {
   id: ID!
-  file: FileAsInput!
+  file: FileAsInput
   dimensions: ImageDimensionsAsInput
 }
 
